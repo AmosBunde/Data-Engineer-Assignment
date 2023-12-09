@@ -2,7 +2,7 @@
 
 # Introduction
 
-This document outlines the solution for the data mart creation and data processing pipeline for analyzing pupil data and attendance performance at NewGlobe academies.
+This document outlines the solution for the data mart creation and data processing pipeline for analyzing pupil data and attendance performance at XXX.
 
 ## Objective
 
