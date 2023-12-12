@@ -379,3 +379,7 @@ OR
 ```
 Set a cron job 0 0 * * * python /path/to/etl_increload.py
 ```
+
+```
+NB: remember to create a virtualenv and run `pip install requiremnts.txt' this particular problem was execute on Anaconda distribution.
+```
