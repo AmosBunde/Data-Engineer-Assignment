@@ -4,20 +4,19 @@ from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 
 # Specify CSV path for Pupil_details
-pupil_details_path = "C:\Users\ARCHITECT\Documents\Data-Engineer-Assignment\pupils_details.csv"
+pupil_details_path = "C://Users//ARCHITECT//Documents//Data-Engineer-Assignment\pupils_details.csv"
 
 
-#Create a Spark session
+# Create a Spark session
 
 spark = SparkSession.builder.appName("PupilETL").getOrCreate()
 
-#Specify JDBC connection properties to our database
+# Specify JDBC connection properties to our database, using the Window Based Authetication to MS SQL
 
 jdbc_url = "jdbc:sqlserver://127.0.0.1; databaseName=New_Globe_Education"
 
 connection_properties = {
-    "user": "admin",
-    "password": "admin",
+    "url": jdbc_url,
     "driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
 }
 
@@ -51,6 +50,31 @@ new_pupil_data_df = new_pupil_data_df.join(stream_df, on="Stream", how="left")
 new_pupil_data_df = new_pupil_data_df.join(grades_df, on="GradeName", how="left")
 new_pupil_data_df = new_pupil_data_df.join(attendance_df, on="Attendance", how="left")
 new_pupil_data_df = new_pupil_data_df.join(status_df, on="Status", how="left")
+
+# Drop unnecessary columns(For a Fact Table we should fetch them from other lookups since snapshot of dilay activities is well)
+columns_to_drop = ["AcademyName", "Stream", "GradeName", "Attendance", "Status"]
+new_pupil_data_df = new_pupil_data_df.drop(*columns_to_drop)
+
+# Select columns for the Pupil table
+pupil_table_df = new_pupil_data_df.select(
+    "PupilID",
+    "FirstName",
+    "MiddleName",
+    "LastName",
+    "Snapshot_date",
+    "AcademyID",
+    "GradesID",
+    "StreamID",
+    "AttendanceID",
+    "StatusID",
+    F.current_timestamp().alias("Created_date")
+)
+
+# Load new data into the Pupil table
+pupil_table_df.write.mode("append").jdbc(jdbc_url, "Pupil", properties=connection_properties)
+
+# Stop the Spark session
+spark.stop()
 
 
 
