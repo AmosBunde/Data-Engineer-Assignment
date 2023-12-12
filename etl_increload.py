@@ -77,4 +77,3 @@ pupil_table_df.write.mode("append").jdbc(jdbc_url, "Pupil", properties=connectio
 spark.stop()
 
 
-
